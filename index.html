@@ -3,276 +3,404 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1417">
 <title>CampusVault</title>
 <style>
-:root{--paper:#eceff1;--card:#fbfcfc;--ink:#1b2328;--muted:#5d6a72;--line:#d5dde2;--accent:#1f4d3a;--accent-ink:#ffffff;--rust:#9a3412;--ok:#1f6f43}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#11171a;--card:#1a2228;--ink:#e6ecef;--muted:#9aa8b0;--line:#2c3840;--accent:#6fb393;--accent-ink:#0f1a14;--rust:#f0a070;--ok:#7fd3a0}}
-:root[data-theme="dark"]{--paper:#11171a;--card:#1a2228;--ink:#e6ecef;--muted:#9aa8b0;--line:#2c3840;--accent:#6fb393;--accent-ink:#0f1a14;--rust:#f0a070;--ok:#7fd3a0}
+:root{--bg:#0f1417;--card:#171e22;--card2:#1e272c;--line:#27323a;--text:#eef3f1;--muted:#8a979d;--green:#7dbb9b;--greenDark:#1d3a2d;--amber:#e3b25c;--amberDark:#3a2f1a;--red:#e88a78}
 *{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-header{max-width:920px;margin:auto;padding:20px 16px 8px}
-h1{font:700 26px/1.2 Georgia,"Times New Roman",serif;margin:0}
-.sub{color:var(--muted);margin:2px 0 0}
-nav{max-width:920px;margin:auto;display:flex;gap:6px;overflow-x:auto;padding:12px 16px;border-bottom:1px solid var(--line)}
-nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:6px 4px;font:inherit;cursor:pointer;white-space:nowrap}
-nav button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
-main{max-width:920px;margin:auto;padding:16px 16px 60px}
-h2{font:600 19px Georgia,"Times New Roman",serif;margin:18px 0 8px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:14px}
-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-bottom:6px}
-form .wide{grid-column:1/-1}
-input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);min-width:0;width:100%}
-input[type=checkbox]{width:auto}
-.btn{font:inherit;padding:8px 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer;justify-self:start}
-.btn.ghost{background:none;color:var(--accent)}
-.muted{color:var(--muted);font-size:13px}
-.row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
-.row:first-child{border-top:0}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+a{color:var(--green)}
+.wrap{max-width:720px;margin:0 auto;padding:0 18px}
+.top{display:flex;align-items:center;gap:12px;padding:calc(18px + env(safe-area-inset-top,0px)) 18px 6px}
+.logo{width:50px;height:50px;border-radius:15px;background:var(--green);color:#0f1417;display:grid;place-items:center;flex:none}
+.brand b{display:block;font-size:20px;letter-spacing:.2px}
+.brand span{color:var(--muted);font-size:13px}
+.avatar{margin-left:auto;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--text);display:grid;place-items:center;flex:none}
+h1.screen{font-size:34px;margin:24px 0 4px;letter-spacing:-.5px}
+.lede{color:var(--muted);margin:0 0 20px}
+h2{font-size:19px;margin:28px 0 12px}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.stat b{display:block;font-size:36px;line-height:1;margin-top:2px}
+.stat span{color:var(--muted);display:block;margin-top:8px}
+.ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--greenDark);color:var(--green)}
+.ico.amber{background:var(--amberDark);color:var(--amber)}
+.item{display:flex;align-items:center;gap:12px;padding:14px 16px;margin-bottom:10px}
+.tile{width:46px;height:46px;border-radius:13px;background:var(--greenDark);color:var(--green);display:grid;place-items:center;flex:none}
+.tile.small{width:38px;height:38px;border-radius:11px}
 .grow{flex:1;min-width:0}
-.tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:4px;padding:0 6px;margin:4px 4px 0 0;color:var(--muted)}
-.late{color:var(--rust);font-weight:600}
-.good{color:var(--ok);font-weight:600}
-.del{background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px;line-height:1}
-.done{text-decoration:line-through;color:var(--muted)}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px}
-.stat b{display:block;font:700 24px Georgia,serif}
-.empty{color:var(--muted);font-style:italic;padding:8px 0}
-.course h3{font:600 16px Georgia,serif;margin:0}
-details summary{cursor:pointer;color:var(--accent);margin-top:8px}
+.title{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub{color:var(--muted);font-size:13px;margin-top:3px}
+.when{font-size:14px;color:var(--amber);white-space:nowrap}
+.when.late{color:var(--red);font-weight:600}
+.when.calm{color:var(--muted)}
+.btn{font:inherit;font-weight:600;border-radius:18px;padding:20px 12px;border:1px solid var(--line);background:var(--card);color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:104px}
+.btn.primary{background:var(--green);border-color:var(--green);color:#0f1417}
+.btn.small{flex-direction:row;min-height:0;padding:10px 14px;border-radius:13px;font-size:14px;gap:8px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.empty{color:var(--muted);text-align:center;padding:24px 8px}
+.chip{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 9px;color:var(--muted);margin:6px 6px 0 0;display:inline-block}
+.iconbtn{background:none;border:0;color:var(--muted);cursor:pointer;padding:6px;border-radius:10px;display:grid;place-items:center;flex:none}
+.iconbtn:hover{color:var(--red)}
+.check{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);background:none;color:transparent;cursor:pointer;display:grid;place-items:center;flex:none;padding:0}
+.check.on{background:var(--green);border-color:var(--green);color:#0f1417}
+.done .title{text-decoration:line-through;color:var(--muted)}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:15px;padding:4px;margin-bottom:16px}
+.seg button{flex:1;background:none;border:0;color:var(--muted);font:inherit;padding:10px;border-radius:11px;cursor:pointer}
+.seg button.on{background:var(--card2);color:var(--text);font-weight:600}
+input,select{font:inherit;width:100%;background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:13px;padding:13px 14px;min-width:0}
+input::placeholder{color:#66727a}
+.formcard{margin-bottom:16px;display:grid;gap:10px}
+.formcard h3{margin:0;font-size:17px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row2 .btn{min-height:0}
+.search{position:relative;margin-bottom:16px}
+.search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+.search input{padding-left:44px}
+.course-head{display:flex;align-items:center;gap:12px}
+.avg{font-weight:700;color:var(--green);font-size:18px;text-align:right;white-space:nowrap}
+.avg small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.mats{margin-top:12px;border-top:1px solid var(--line)}
+.mat{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.mat:last-child{border-bottom:0}
+.redline{color:var(--red);font-size:13px;margin-top:3px}
+nav.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:720px;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:5}
+nav.bottom button{background:none;border:0;color:var(--muted);font:inherit;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 16px;border-radius:16px;cursor:pointer;min-width:76px}
+nav.bottom button.on{color:var(--green);background:var(--greenDark)}
 </style>
 </head>
 <body>
-<header>
-  <h1>CampusVault</h1>
-  <p class="sub">Study materials, CATs and assignments, and academic records in one place.</p>
+
+<header class="wrap top">
+  <div class="logo" id="logo"></div>
+  <div class="brand"><b>CampusVault</b><span>Your academic space</span></div>
+  <div class="avatar" id="avatar"></div>
 </header>
-<nav id="nav"></nav>
-<main id="view"></main>
+
+<main class="wrap" id="screen"></main>
+<nav class="bottom" id="nav"></nav>
 
 <script>
+/* ---------- icons ---------- */
+const ICON = {
+  cap:'<path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/><path d="M22 9v6"/>',
+  book:'<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v15H6.5A2.5 2.5 0 0 0 4 19.5z"/><path d="M4 19.5V21h16"/>',
+  layers:'<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16V5a2 2 0 0 1 2-2h11"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  archive:'<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9"/><path d="M10 13h4"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  folderPlus:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v6M9 14h6"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+  home:'<path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  tasks:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/><path d="M8 15l2.5 2.5L16 13"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  x:'<path d="M18 6L6 18M6 6l12 12"/>',
+  check:'<path d="M20 6L9 17l-5-5"/>'
+};
+const svg = (n, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
+
+/* ---------- data ---------- */
 const KEY = 'campusvault-v1';
 let db;
 try { db = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { db = {}; }
-db = { courses: db.courses || [], materials: db.materials || [], assessments: db.assessments || [], records: db.records || [] };
-
+db = { courses: [], materials: [], assessments: [], records: [], ...db };
 function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} }
+
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const today = () => new Date().toLocaleDateString('en-CA');
 const tagsOf = s => s.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
-const TABS = { dash: 'Dashboard', courses: 'Courses & Materials', assess: 'CATs & Assignments', records: 'Records' };
-let tab = 'dash';
-let search = '';
 
-/* ---------- actions ---------- */
-function go(t) { tab = t; search = ''; render(); }
-function removeItem(list, id) {
-  if (!confirm('Delete this entry?')) return;
-  db[list] = db[list].filter(x => x.id !== id); save(); render();
+/* ---------- dates ---------- */
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
-function addCourse(e) {
-  e.preventDefault(); const f = e.target;
-  if (!f.code.value.trim()) return;
-  db.courses.push({ id: uid(), code: f.code.value.trim().toUpperCase(), title: f.ctitle.value.trim(), lecturer: f.lecturer.value.trim(), sem: f.sem.value.trim() });
-  save(); render();
-}
-function addMaterial(e, cid) {
-  e.preventDefault(); const f = e.target;
-  if (!f.mtitle.value.trim()) return;
-  db.materials.push({ id: uid(), course: cid, title: f.mtitle.value.trim(), type: f.mtype.value, where: f.where.value.trim(), tags: tagsOf(f.mtags.value) });
-  save(); render();
-}
-function addAssessment(e) {
-  e.preventDefault(); const f = e.target;
-  if (!f.acourse.value || !f.atitle.value.trim()) return;
-  db.assessments.push({
-    id: uid(), course: f.acourse.value, kind: f.kind.value, title: f.atitle.value.trim(),
-    due: f.due.value, weight: parseFloat(f.weight.value) || 0,
-    score: f.score.value === '' ? null : parseFloat(f.score.value), done: false
-  });
-  save(); render();
-}
-function toggleDone(id) {
-  const a = db.assessments.find(x => x.id === id);
-  if (a) { a.done = !a.done; save(); render(); }
-}
-function addRecord(e) {
-  e.preventDefault(); const f = e.target;
-  if (!f.rtitle.value.trim()) return;
-  db.records.push({ id: uid(), title: f.rtitle.value.trim(), cat: f.rcat.value, ref: f.ref.value.trim(), date: f.rdate.value, where: f.rwhere.value.trim(), keep: parseInt(f.keep.value, 10) || 0, tags: tagsOf(f.rtags.value) });
-  save(); render();
-}
-
-/* ---------- helpers ---------- */
-function courseLabel(cid) {
-  const c = db.courses.find(x => x.id === cid);
-  return c ? c.code : 'Unknown course';
-}
-function courseAverage(cid) {
-  const g = db.assessments.filter(a => a.course === cid && a.score !== null && a.weight > 0);
-  const w = g.reduce((s, a) => s + a.weight, 0);
-  if (!w) return null;
-  return g.reduce((s, a) => s + a.score * a.weight, 0) / w;
+const dayNum = s => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d) / 864e5; };
+const daysUntil = s => dayNum(s) - dayNum(todayStr());
+function dueLabel(s) {
+  const n = daysUntil(s);
+  if (n < 0) return `${-n} day${n < -1 ? 's' : ''} overdue`;
+  if (n === 0) return 'Today';
+  if (n === 1) return 'Tomorrow';
+  return `In ${n} days`;
 }
 function reviewDue(r) {
   if (!r.date || !r.keep) return false;
   const d = new Date(r.date); d.setFullYear(d.getFullYear() + r.keep);
   return d < new Date();
 }
-function matches(text, q) { return !q || text.toLowerCase().includes(q); }
 
-/* ---------- views ---------- */
-function viewDash() {
-  const t = today();
-  const open = db.assessments.filter(a => !a.done);
-  const overdue = open.filter(a => a.due && a.due < t).sort((a, b) => a.due.localeCompare(b.due));
-  const upcoming = open.filter(a => !a.due || a.due >= t).sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999')).slice(0, 6);
-  const graded = db.assessments.filter(a => a.score !== null && a.weight > 0);
-  const gw = graded.reduce((s, a) => s + a.weight, 0);
-  const overall = gw ? graded.reduce((s, a) => s + a.score * a.weight, 0) / gw : null;
-  const reviews = db.records.filter(reviewDue).length;
-
-  return `
-  <div class="stats">
-    <div class="stat"><b>${db.courses.length}</b><span class="muted">Courses</span></div>
-    <div class="stat"><b>${db.materials.length}</b><span class="muted">Materials saved</span></div>
-    <div class="stat"><b>${overdue.length}</b><span class="muted">Overdue</span></div>
-    <div class="stat"><b>${overall === null ? '–' : overall.toFixed(1) + '%'}</b><span class="muted">Weighted average</span></div>
-    <div class="stat"><b>${reviews}</b><span class="muted">Records due for review</span></div>
-  </div>
-  <h2>Overdue</h2>
-  <div class="panel">${overdue.length ? overdue.map(a => assessRow(a)).join('') : '<p class="empty">Nothing overdue.</p>'}</div>
-  <h2>Next up</h2>
-  <div class="panel">${upcoming.length ? upcoming.map(a => assessRow(a)).join('') : '<p class="empty">No open CATs or assignments. Add one under CATs &amp; Assignments.</p>'}</div>
-  <h2>Course averages</h2>
-  <div class="panel">${db.courses.length ? db.courses.map(c => {
-      const avg = courseAverage(c.id);
-      return `<div class="row"><div class="grow"><b>${esc(c.code)}</b> <span class="muted">${esc(c.title)}</span></div><div>${avg === null ? '<span class="muted">No scores yet</span>' : avg.toFixed(1) + '%'}</div></div>`;
-    }).join('') : '<p class="empty">No courses yet.</p>'}</div>`;
+/* ---------- helpers ---------- */
+function courseCode(id) { const c = db.courses.find(x => x.id === id); return c ? c.code : 'No course'; }
+function courseAverage(id) {
+  const g = db.assessments.filter(a => a.course === id && a.score !== null && a.weight > 0);
+  const w = g.reduce((s, a) => s + a.weight, 0);
+  return w ? g.reduce((s, a) => s + a.score * a.weight, 0) / w : null;
 }
 
-function assessRow(a) {
-  const late = !a.done && a.due && a.due < today();
-  return `<div class="row">
-    <div class="grow">
-      <div class="${a.done ? 'done' : ''}"><b>${esc(a.title)}</b> <span class="tag">${esc(a.kind)}</span><span class="tag">${esc(courseLabel(a.course))}</span></div>
-      <div class="muted">${a.due ? 'Due ' + esc(a.due) : 'No due date'}${a.weight ? ' · ' + a.weight + '% of course' : ''}${a.score !== null ? ' · Score ' + a.score + '%' : ''}${late ? ' · <span class="late">Late</span>' : ''}</div>
-    </div>
-    <div class="row" style="border:0;padding:0">
-      <button class="btn ghost" onclick="toggleDone('${a.id}')">${a.done ? 'Reopen' : 'Done'}</button>
-      <button class="del" title="Delete" onclick="removeItem('assessments','${a.id}')">×</button>
-    </div>
+/* ---------- state ---------- */
+let tab = 'home';
+let filter = 'all';
+let q = '';
+let form = null;
+
+const NAV = [['home', 'Home', 'home'], ['courses', 'Courses', 'book'], ['tasks', 'Tasks', 'tasks'], ['records', 'Records', 'archive']];
+
+function setTab(t) { tab = t; form = null; q = ''; render(); window.scrollTo(0, 0); }
+function goForm(t, f) { tab = t; form = f; q = ''; render(); window.scrollTo(0, 0); }
+function toggleForm(f) { form = form === f ? null : f; render(); }
+function closeForm() { form = null; render(); }
+
+/* ---------- actions ---------- */
+function saveCourse(e) {
+  e.preventDefault(); const f = e.target;
+  const code = f.code.value.trim(); if (!code) return;
+  db.courses.push({ id: uid(), code: code.toUpperCase(), title: f.ctitle.value.trim(), lecturer: f.lecturer.value.trim(), sem: f.sem.value.trim() });
+  form = null; save(); render();
+}
+function saveMaterial(e) {
+  e.preventDefault(); const f = e.target;
+  if (!f.mcourse.value || !f.mtitle.value.trim()) return;
+  db.materials.push({ id: uid(), course: f.mcourse.value, title: f.mtitle.value.trim(), type: f.mtype.value, where: f.mwhere.value.trim(), tags: tagsOf(f.mtags.value) });
+  form = null; save(); render();
+}
+function saveTask(e) {
+  e.preventDefault(); const f = e.target;
+  if (!f.tcourse.value || !f.ttitle.value.trim()) return;
+  db.assessments.push({
+    id: uid(), course: f.tcourse.value, kind: f.tkind.value, title: f.ttitle.value.trim(),
+    due: f.tdue.value, weight: parseFloat(f.tweight.value) || 0,
+    score: f.tscore.value === '' ? null : parseFloat(f.tscore.value), done: false
+  });
+  form = null; save(); render();
+}
+function saveRecord(e) {
+  e.preventDefault(); const f = e.target;
+  if (!f.rtitle.value.trim()) return;
+  db.records.push({ id: uid(), title: f.rtitle.value.trim(), cat: f.rcat.value, ref: f.rref.value.trim(), date: f.rdate.value, where: f.rwhere.value.trim(), keep: parseInt(f.rkeep.value, 10) || 0, tags: tagsOf(f.rtags.value) });
+  form = null; save(); render();
+}
+function toggleTask(id) {
+  const a = db.assessments.find(x => x.id === id);
+  if (a) { a.done = !a.done; save(); render(); }
+}
+function removeItem(list, id) {
+  if (!confirm('Delete this entry?')) return;
+  db[list] = db[list].filter(x => x.id !== id); save(); render();
+}
+function deleteCourse(id) {
+  if (!confirm('Delete this course with its materials and tasks?')) return;
+  db.courses = db.courses.filter(c => c.id !== id);
+  db.materials = db.materials.filter(m => m.course !== id);
+  db.assessments = db.assessments.filter(a => a.course !== id);
+  save(); render();
+}
+
+/* ---------- forms ---------- */
+const courseOptions = () => db.courses.map(c => `<option value="${c.id}">${esc(c.code)} ${esc(c.title)}</option>`).join('');
+
+function formCourse() {
+  return `<form class="card formcard" onsubmit="saveCourse(event)">
+    <h3>New course</h3>
+    <input name="code" placeholder="Course code, e.g. SMA 104" required>
+    <input name="ctitle" placeholder="Course title">
+    <div class="row2"><input name="lecturer" placeholder="Lecturer"><input name="sem" placeholder="Semester"></div>
+    <div class="row2"><button class="btn small" type="button" onclick="closeForm()">Cancel</button><button class="btn small primary" type="submit">Save course</button></div>
+  </form>`;
+}
+function formMaterial() {
+  return `<form class="card formcard" onsubmit="saveMaterial(event)">
+    <h3>Add material</h3>
+    ${db.courses.length ? `
+    <select name="mcourse" required><option value="">Choose a course</option>${courseOptions()}</select>
+    <input name="mtitle" placeholder="Title, e.g. Week 4 lecture notes" required>
+    <div class="row2"><select name="mtype"><option>Lecture notes</option><option>Slides</option><option>Textbook chapter</option><option>Past paper</option><option>Reading</option><option>Other</option></select><input name="mwhere" placeholder="Link or location"></div>
+    <input name="mtags" placeholder="Tags, comma separated">
+    <div class="row2"><button class="btn small" type="button" onclick="closeForm()">Cancel</button><button class="btn small primary" type="submit">Save material</button></div>`
+    : `<p class="sub">Add a course first, then you can file materials under it.</p><button class="btn small" type="button" onclick="closeForm()">Close</button>`}
+  </form>`;
+}
+function formTask() {
+  return `<form class="card formcard" onsubmit="saveTask(event)">
+    <h3>New task</h3>
+    ${db.courses.length ? `
+    <div class="row2"><select name="tcourse" required><option value="">Course</option>${courseOptions()}</select><select name="tkind"><option>CAT</option><option>Assignment</option><option>Quiz</option><option>Lab</option><option>Project</option><option>Exam</option></select></div>
+    <input name="ttitle" placeholder="Title, e.g. CAT 1" required>
+    <div class="row2"><input name="tdue" type="date" title="Due date"><input name="tweight" type="number" min="0" max="100" step="0.5" placeholder="Weight %"></div>
+    <input name="tscore" type="number" min="0" max="100" step="0.1" placeholder="Score % (optional)">
+    <div class="row2"><button class="btn small" type="button" onclick="closeForm()">Cancel</button><button class="btn small primary" type="submit">Save task</button></div>`
+    : `<p class="sub">Add a course first, then you can track its tasks here.</p><button class="btn small" type="button" onclick="closeForm()">Close</button>`}
+  </form>`;
+}
+function formRecord() {
+  return `<form class="card formcard" onsubmit="saveRecord(event)">
+    <h3>New record</h3>
+    <input name="rtitle" placeholder="Record, e.g. KCSE certificate" required>
+    <div class="row2"><select name="rcat"><option>Admission</option><option>Transcript</option><option>Fee</option><option>Certificate</option><option>Correspondence</option><option>Other</option></select><input name="rref" placeholder="Reference number"></div>
+    <div class="row2"><input name="rdate" type="date" title="Date of record"><input name="rkeep" type="number" min="0" placeholder="Keep for (years)"></div>
+    <input name="rwhere" placeholder="Where it is kept">
+    <input name="rtags" placeholder="Tags, comma separated">
+    <div class="row2"><button class="btn small" type="button" onclick="closeForm()">Cancel</button><button class="btn small primary" type="submit">Save record</button></div>
+  </form>`;
+}
+
+/* ---------- rows ---------- */
+function deadlineRow(a) {
+  const n = a.due ? daysUntil(a.due) : null;
+  return `<div class="card item">
+    <div class="tile">${svg('calendar')}</div>
+    <div class="grow"><div class="title">${esc(a.title)}</div><div class="sub">${esc(courseCode(a.course))} · ${esc(a.kind)}</div></div>
+    <div class="when ${n === null ? 'calm' : n < 0 ? 'late' : ''}">${n === null ? 'No date' : dueLabel(a.due)}</div>
   </div>`;
+}
+function taskRow(a) {
+  const n = a.due ? daysUntil(a.due) : null;
+  const late = !a.done && n !== null && n < 0;
+  return `<div class="card item ${a.done ? 'done' : ''}">
+    <button class="check ${a.done ? 'on' : ''}" onclick="toggleTask('${a.id}')" aria-label="Mark as done">${svg('check', 16)}</button>
+    <div class="grow"><div class="title">${esc(a.title)}</div>
+      <div class="sub">${esc(courseCode(a.course))} · ${esc(a.kind)}${a.weight ? ' · ' + a.weight + '%' : ''}${a.score !== null ? ' · Score ' + a.score + '%' : ''}</div></div>
+    <div class="when ${a.done ? 'calm' : late ? 'late' : n === null ? 'calm' : ''}">${a.done ? 'Done' : n === null ? 'No date' : dueLabel(a.due)}</div>
+    <button class="iconbtn" onclick="removeItem('assessments','${a.id}')" aria-label="Delete">${svg('x', 16)}</button>
+  </div>`;
+}
+function matRow(m) {
+  const link = /^https?:\/\//.test(m.where);
+  return `<div class="mat">
+    <div class="tile small">${svg('layers', 18)}</div>
+    <div class="grow"><div class="title" style="font-size:15px">${esc(m.title)}</div>
+      <div class="sub">${esc(m.type)}${m.where ? ' · ' + (link ? `<a href="${esc(m.where)}" target="_blank" rel="noopener">Open link</a>` : esc(m.where)) : ''}</div>
+      ${m.tags.map(t => `<span class="chip">#${esc(t)}</span>`).join('')}
+    </div>
+    <button class="iconbtn" onclick="removeItem('materials','${m.id}')" aria-label="Delete">${svg('x', 16)}</button>
+  </div>`;
+}
+function recRow(r) {
+  return `<div class="card item">
+    <div class="tile">${svg('archive')}</div>
+    <div class="grow"><div class="title">${esc(r.title)}</div>
+      <div class="sub">${esc(r.cat)}${r.ref ? ' · Ref ' + esc(r.ref) : ''}${r.date ? ' · ' + esc(r.date) : ''}${r.where ? ' · ' + esc(r.where) : ''}${r.keep ? ' · Keep ' + r.keep + ' yrs' : ''}</div>
+      ${reviewDue(r) ? '<div class="redline">Past retention, review or dispose</div>' : ''}
+      ${r.tags.map(t => `<span class="chip">#${esc(t)}</span>`).join('')}
+    </div>
+    <button class="iconbtn" onclick="removeItem('records','${r.id}')" aria-label="Delete">${svg('x', 16)}</button>
+  </div>`;
+}
+
+/* ---------- screens ---------- */
+function viewHome() {
+  const t = todayStr();
+  const open = db.assessments.filter(a => !a.done);
+  const upcoming = open.filter(a => a.due).sort((a, b) => a.due.localeCompare(b.due)).slice(0, 4);
+  const stat = (ic, n, label, amber) => `<div class="card stat"><div class="ico ${amber ? 'amber' : ''}">${svg(ic, 20)}</div><b>${n}</b><span>${label}</span></div>`;
+  return `
+    <h1 class="screen">Dashboard</h1>
+    <p class="lede">Keep your semester organized.</p>
+    <div class="grid4">
+      ${stat('book', db.courses.length, 'Courses')}
+      ${stat('layers', db.materials.length, 'Materials')}
+      ${stat('clock', open.filter(a => !a.due || a.due >= t).length, 'Upcoming', true)}
+      ${stat('archive', db.records.filter(reviewDue).length, 'Records to review')}
+    </div>
+    <h2>Upcoming deadlines</h2>
+    ${upcoming.length ? upcoming.map(deadlineRow).join('') : '<div class="card empty">No deadlines yet. Add a task to see it here.</div>'}
+    <h2>Quick actions</h2>
+    <div class="actions">
+      <button class="btn primary" onclick="goForm('courses','course')">${svg('plus', 26)}Add course</button>
+      <button class="btn" onclick="goForm('courses','material')">${svg('folderPlus', 26)}Add material</button>
+    </div>`;
 }
 
 function viewCourses() {
-  const q = search.toLowerCase();
-  const searchHits = q ? db.materials.filter(m => matches(m.title + ' ' + m.tags.join(' ') + ' ' + m.type, q)) : [];
-
+  const search = q.toLowerCase();
+  const hit = c => {
+    if (!search) return true;
+    const mats = db.materials.filter(m => m.course === c.id);
+    return (c.code + ' ' + c.title + ' ' + mats.map(m => m.title + ' ' + m.tags.join(' ')).join(' ')).toLowerCase().includes(search);
+  };
+  const list = db.courses.filter(hit);
   return `
-  <div class="panel">
-    <form onsubmit="addCourse(event)">
-      <input name="code" placeholder="Course code, e.g. SMA 104" required>
-      <input name="ctitle" placeholder="Course title">
-      <input name="lecturer" placeholder="Lecturer">
-      <input name="sem" placeholder="Semester, e.g. Sem 1 2026/27">
-      <button class="btn" type="submit">Add course</button>
-    </form>
-  </div>
-  <input type="search" placeholder="Search all materials by title, type or tag" value="${esc(search)}" oninput="search=this.value;render()" style="margin-bottom:12px">
-  ${q ? `<div class="panel">${searchHits.length ? searchHits.map(m => materialRow(m)).join('') : '<p class="empty">No materials match.</p>'}</div>` : ''}
-  ${db.courses.length ? db.courses.map(c => {
-      const mats = db.materials.filter(m => m.course === c.id);
-      return `<div class="panel course">
-        <h3>${esc(c.code)} <span class="muted" style="font:inherit">${esc(c.title)}</span></h3>
-        <div class="muted">${esc(c.lecturer)}${c.lecturer && c.sem ? ' · ' : ''}${esc(c.sem)}</div>
-        <div style="margin-top:8px">${mats.length ? mats.map(m => materialRow(m)).join('') : '<p class="empty">No materials yet.</p>'}</div>
-        <details><summary>Add material</summary>
-          <form onsubmit="addMaterial(event,'${c.id}')" style="margin-top:8px">
-            <input name="mtitle" placeholder="Title, e.g. Week 4 lecture notes" required>
-            <select name="mtype"><option>Lecture notes</option><option>Slides</option><option>Textbook chapter</option><option>Past paper</option><option>Reading</option><option>Other</option></select>
-            <input name="where" placeholder="Link or location (e.g. shelf, folder)">
-            <input name="mtags" placeholder="Tags, comma separated">
-            <button class="btn" type="submit">Save material</button>
-          </form>
-        </details>
-      </div>`;
-    }).join('') : '<p class="empty">Add your first course to start filing materials.</p>'}`;
-}
-
-function materialRow(m) {
-  return `<div class="row">
-    <div class="grow"><b>${esc(m.title)}</b> <span class="tag">${esc(m.type)}</span>${db.courses.length && !search ? '' : `<span class="tag">${esc(courseLabel(m.course))}</span>`}
-      ${m.where ? `<div class="muted">${/^https?:\/\//.test(m.where) ? `<a href="${esc(m.where)}" target="_blank" rel="noopener" style="color:var(--accent)">Open link</a>` : esc(m.where)}</div>` : ''}
-      ${m.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}
+    <h1 class="screen">Courses</h1>
+    <p class="lede">Your subjects and the study materials filed under each.</p>
+    <div class="toolbar">
+      <button class="btn small primary" onclick="toggleForm('course')">${svg('plus', 18)}New course</button>
+      <button class="btn small" onclick="toggleForm('material')">${svg('folderPlus', 18)}Add material</button>
     </div>
-    <button class="del" title="Delete" onclick="removeItem('materials','${m.id}')">×</button>
-  </div>`;
+    ${form === 'course' ? formCourse() : ''}
+    ${form === 'material' ? formMaterial() : ''}
+    <div class="search">${svg('search', 18)}<input type="search" placeholder="Search courses and materials" value="${esc(q)}" oninput="q=this.value;render()"></div>
+    ${!db.courses.length ? '<div class="card empty">No courses yet. Tap New course to start.</div>' :
+      !list.length ? '<div class="card empty">Nothing matches your search.</div>' :
+      list.map(c => {
+        const mats = db.materials.filter(m => m.course === c.id);
+        const avg = courseAverage(c.id);
+        return `<div class="card" style="margin-bottom:12px">
+          <div class="course-head">
+            <div class="tile">${svg('book')}</div>
+            <div class="grow"><div class="title">${esc(c.code)} ${esc(c.title)}</div>
+              <div class="sub">${esc([c.lecturer, c.sem].filter(Boolean).join(' · ') || 'No details')}</div></div>
+            <div class="avg">${avg === null ? '–' : avg.toFixed(0) + '%'}<small>average</small></div>
+            <button class="iconbtn" onclick="deleteCourse('${c.id}')" aria-label="Delete course">${svg('x', 16)}</button>
+          </div>
+          <div class="mats">${mats.length ? mats.map(matRow).join('') : '<div class="sub" style="padding:12px 0">No materials yet</div>'}</div>
+        </div>`;
+      }).join('')}`;
 }
 
-function viewAssess() {
-  const sorted = [...db.assessments].sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999'));
-  const opts = db.courses.map(c => `<option value="${c.id}">${esc(c.code)}</option>`).join('');
+function viewTasks() {
+  const t = todayStr();
+  const list = db.assessments
+    .filter(a => filter === 'all' || (filter === 'open' && !a.done) || (filter === 'done' && a.done))
+    .sort((a, b) => (a.done - b.done) || (a.due || '9999').localeCompare(b.due || '9999'));
+  const seg = [['all', 'All'], ['open', 'Open'], ['done', 'Done']]
+    .map(([k, v]) => `<button class="${filter === k ? 'on' : ''}" onclick="filter='${k}';render()">${v}</button>`).join('');
   return `
-  <div class="panel">
-    ${db.courses.length ? `
-    <form onsubmit="addAssessment(event)">
-      <select name="acourse" required><option value="">Course</option>${opts}</select>
-      <select name="kind"><option>CAT</option><option>Assignment</option><option>Quiz</option><option>Lab</option><option>Project</option><option>Exam</option></select>
-      <input name="atitle" placeholder="Title, e.g. CAT 1" required>
-      <input name="due" type="date">
-      <input name="weight" type="number" min="0" max="100" step="0.5" placeholder="Weight %">
-      <input name="score" type="number" min="0" max="100" step="0.1" placeholder="Score % (optional)">
-      <button class="btn" type="submit">Add</button>
-    </form>` : '<p class="empty">Add a course first, then track its CATs and assignments here.</p>'}
-  </div>
-  <div class="panel">${sorted.length ? sorted.map(a => assessRow(a)).join('') : '<p class="empty">Nothing tracked yet.</p>'}</div>`;
+    <h1 class="screen">Tasks</h1>
+    <p class="lede">CATs, assignments and exams, with their due dates.</p>
+    <div class="toolbar" style="grid-template-columns:1fr">
+      <button class="btn small primary" onclick="toggleForm('task')">${svg('plus', 18)}New task</button>
+    </div>
+    ${form === 'task' ? formTask() : ''}
+    <div class="seg">${seg}</div>
+    ${list.length ? list.map(taskRow).join('') : '<div class="card empty">Nothing here. Add a task or change the filter.</div>'}`;
 }
 
 function viewRecords() {
-  const q = search.toLowerCase();
-  const list = db.records.filter(r => matches(r.title + ' ' + r.ref + ' ' + r.cat + ' ' + r.tags.join(' '), q));
+  const search = q.toLowerCase();
+  const list = db.records.filter(r => !search || (r.title + ' ' + r.ref + ' ' + r.cat + ' ' + r.tags.join(' ')).toLowerCase().includes(search));
   return `
-  <div class="panel">
-    <form onsubmit="addRecord(event)">
-      <input name="rtitle" placeholder="Record, e.g. KCSE certificate" required>
-      <select name="rcat"><option>Admission</option><option>Transcript</option><option>Fee</option><option>Certificate</option><option>Correspondence</option><option>Other</option></select>
-      <input name="ref" placeholder="Reference number">
-      <input name="rdate" type="date" title="Date of record">
-      <input name="rwhere" placeholder="Where it is kept">
-      <input name="keep" type="number" min="0" placeholder="Keep for (years)">
-      <input name="rtags" class="wide" placeholder="Tags, comma separated">
-      <button class="btn" type="submit">Save record</button>
-    </form>
-  </div>
-  <input type="search" placeholder="Find a record by title, reference or tag" value="${esc(search)}" oninput="search=this.value;render()" style="margin-bottom:12px">
-  <div class="panel">${list.length ? list.map(r => `
-    <div class="row">
-      <div class="grow">
-        <b>${esc(r.title)}</b> <span class="tag">${esc(r.cat)}</span>
-        <div class="muted">${r.ref ? 'Ref ' + esc(r.ref) : 'No reference'}${r.date ? ' · ' + esc(r.date) : ''}${r.where ? ' · ' + esc(r.where) : ''}${r.keep ? ' · Keep ' + r.keep + ' yrs' : ''}</div>
-        ${reviewDue(r) ? '<div class="late">Past retention period, review or dispose</div>' : ''}
-        ${r.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}
-      </div>
-      <button class="del" title="Delete" onclick="removeItem('records','${r.id}')">×</button>
-    </div>`).join('') : '<p class="empty">No records match. Save one above to start your archive.</p>'}</div>`;
+    <h1 class="screen">Records</h1>
+    <p class="lede">Certificates, receipts and other documents you need to keep.</p>
+    <div class="toolbar" style="grid-template-columns:1fr">
+      <button class="btn small primary" onclick="toggleForm('record')">${svg('plus', 18)}New record</button>
+    </div>
+    ${form === 'record' ? formRecord() : ''}
+    <div class="search">${svg('search', 18)}<input type="search" placeholder="Find by title, reference or tag" value="${esc(q)}" oninput="q=this.value;render()"></div>
+    ${list.length ? list.map(recRow).join('') : '<div class="card empty">No records found. Save one to start your archive.</div>'}`;
 }
 
 /* ---------- render ---------- */
 function render() {
-  document.getElementById('nav').innerHTML = Object.entries(TABS).map(([k, v]) =>
-    `<button class="${k === tab ? 'on' : ''}" onclick="go('${k}')">${v}</button>`).join('');
-  const views = { dash: viewDash, courses: viewCourses, assess: viewAssess, records: viewRecords };
-  const active = document.activeElement;
-  const wasSearch = active && active.type === 'search';
-  const pos = wasSearch ? active.selectionStart : 0;
-  document.getElementById('view').innerHTML = views[tab]();
-  if (wasSearch) {
-    const box = document.querySelector('input[type=search]');
+  const views = { home: viewHome, courses: viewCourses, tasks: viewTasks, records: viewRecords };
+  const searching = document.activeElement && document.activeElement.type === 'search';
+  const pos = searching ? document.activeElement.selectionStart : 0;
+
+  document.getElementById('screen').innerHTML = views[tab]();
+  document.getElementById('nav').innerHTML = NAV.map(([k, label, ic]) =>
+    `<button class="${k === tab ? 'on' : ''}" onclick="setTab('${k}')">${svg(ic, 22)}${label}</button>`).join('');
+
+  if (searching) {
+    const box = document.querySelector('#screen input[type=search]');
     if (box) { box.focus(); box.setSelectionRange(pos, pos); }
   }
 }
+
+document.getElementById('logo').innerHTML = svg('cap', 26);
+document.getElementById('avatar').innerHTML = svg('user', 20);
 render();
 </script>
 </body>
