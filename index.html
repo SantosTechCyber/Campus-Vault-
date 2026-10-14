@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CampusVault</title>
+<style>
+:root{--paper:#eceff1;--card:#fbfcfc;--ink:#1b2328;--muted:#5d6a72;--line:#d5dde2;--accent:#1f4d3a;--accent-ink:#ffffff;--rust:#9a3412;--ok:#1f6f43}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#11171a;--card:#1a2228;--ink:#e6ecef;--muted:#9aa8b0;--line:#2c3840;--accent:#6fb393;--accent-ink:#0f1a14;--rust:#f0a070;--ok:#7fd3a0}}
+:root[data-theme="dark"]{--paper:#11171a;--card:#1a2228;--ink:#e6ecef;--muted:#9aa8b0;--line:#2c3840;--accent:#6fb393;--accent-ink:#0f1a14;--rust:#f0a070;--ok:#7fd3a0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+header{max-width:920px;margin:auto;padding:20px 16px 8px}
+h1{font:700 26px/1.2 Georgia,"Times New Roman",serif;margin:0}
+.sub{color:var(--muted);margin:2px 0 0}
+nav{max-width:920px;margin:auto;display:flex;gap:6px;overflow-x:auto;padding:12px 16px;border-bottom:1px solid var(--line)}
+nav button{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:6px 4px;font:inherit;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+main{max-width:920px;margin:auto;padding:16px 16px 60px}
+h2{font:600 19px Georgia,"Times New Roman",serif;margin:18px 0 8px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:14px 16px;margin-bottom:14px}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;margin-bottom:6px}
+form .wide{grid-column:1/-1}
+input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);min-width:0;width:100%}
+input[type=checkbox]{width:auto}
+.btn{font:inherit;padding:8px 14px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer;justify-self:start}
+.btn.ghost{background:none;color:var(--accent)}
+.muted{color:var(--muted);font-size:13px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.grow{flex:1;min-width:0}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--line);border-radius:4px;padding:0 6px;margin:4px 4px 0 0;color:var(--muted)}
+.late{color:var(--rust);font-weight:600}
+.good{color:var(--ok);font-weight:600}
+.del{background:none;border:0;color:var(--muted);cursor:pointer;font-size:18px;line-height:1}
+.done{text-decoration:line-through;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px}
+.stat b{display:block;font:700 24px Georgia,serif}
+.empty{color:var(--muted);font-style:italic;padding:8px 0}
+.course h3{font:600 16px Georgia,serif;margin:0}
+details summary{cursor:pointer;color:var(--accent);margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>CampusVault</h1>
+  <p class="sub">Study materials, CATs and assignments, and academic records in one place.</p>
+</header>
+<nav id="nav"></nav>
+<main id="view"></main>
+
+<script>
+const KEY = 'campusvault-v1';
+let db;
+try { db = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { db = {}; }
+db = { courses: db.courses || [], materials: db.materials || [], assessments: db.assessments || [], records: db.records || [] };
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} }
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = () => new Date().toLocaleDateString('en-CA');
+const tagsOf = s => s.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+const TABS = { dash: 'Dashboard', courses: 'Courses & Materials', assess: 'CATs & Assignments', records: 'Records' };
+let tab = 'dash';
+let search = '';
+
+/* ---------- actions ---------- */
+function go(t) { tab = t; search = ''; render(); }
+function removeItem(list, id) {
+  if (!confirm('Delete this entry?')) return;
+  db[list] = db[list].filter(x => x.id !== id); save(); render();
+}
+function addCourse(e) {
+  e.preventDefault(); const f = e.target;
+  if (!f.code.value.trim()) return;
+  db.courses.push({ id: uid(), code: f.code.value.trim().toUpperCase(), title: f.ctitle.value.trim(), lecturer: f.lecturer.value.trim(), sem: f.sem.value.trim() });
+  save(); render();
+}
+function addMaterial(e, cid) {
+  e.preventDefault(); const f = e.target;
+  if (!f.mtitle.value.trim()) return;
+  db.materials.push({ id: uid(), course: cid, title: f.mtitle.value.trim(), type: f.mtype.value, where: f.where.value.trim(), tags: tagsOf(f.mtags.value) });
+  save(); render();
+}
+function addAssessment(e) {
+  e.preventDefault(); const f = e.target;
+  if (!f.acourse.value || !f.atitle.value.trim()) return;
+  db.assessments.push({
+    id: uid(), course: f.acourse.value, kind: f.kind.value, title: f.atitle.value.trim(),
+    due: f.due.value, weight: parseFloat(f.weight.value) || 0,
+    score: f.score.value === '' ? null : parseFloat(f.score.value), done: false
+  });
+  save(); render();
+}
+function toggleDone(id) {
+  const a = db.assessments.find(x => x.id === id);
+  if (a) { a.done = !a.done; save(); render(); }
+}
+function addRecord(e) {
+  e.preventDefault(); const f = e.target;
+  if (!f.rtitle.value.trim()) return;
+  db.records.push({ id: uid(), title: f.rtitle.value.trim(), cat: f.rcat.value, ref: f.ref.value.trim(), date: f.rdate.value, where: f.rwhere.value.trim(), keep: parseInt(f.keep.value, 10) || 0, tags: tagsOf(f.rtags.value) });
+  save(); render();
+}
+
+/* ---------- helpers ---------- */
+function courseLabel(cid) {
+  const c = db.courses.find(x => x.id === cid);
+  return c ? c.code : 'Unknown course';
+}
+function courseAverage(cid) {
+  const g = db.assessments.filter(a => a.course === cid && a.score !== null && a.weight > 0);
+  const w = g.reduce((s, a) => s + a.weight, 0);
+  if (!w) return null;
+  return g.reduce((s, a) => s + a.score * a.weight, 0) / w;
+}
+function reviewDue(r) {
+  if (!r.date || !r.keep) return false;
+  const d = new Date(r.date); d.setFullYear(d.getFullYear() + r.keep);
+  return d < new Date();
+}
+function matches(text, q) { return !q || text.toLowerCase().includes(q); }
+
+/* ---------- views ---------- */
+function viewDash() {
+  const t = today();
+  const open = db.assessments.filter(a => !a.done);
+  const overdue = open.filter(a => a.due && a.due < t).sort((a, b) => a.due.localeCompare(b.due));
+  const upcoming = open.filter(a => !a.due || a.due >= t).sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999')).slice(0, 6);
+  const graded = db.assessments.filter(a => a.score !== null && a.weight > 0);
+  const gw = graded.reduce((s, a) => s + a.weight, 0);
+  const overall = gw ? graded.reduce((s, a) => s + a.score * a.weight, 0) / gw : null;
+  const reviews = db.records.filter(reviewDue).length;
+
+  return `
+  <div class="stats">
+    <div class="stat"><b>${db.courses.length}</b><span class="muted">Courses</span></div>
+    <div class="stat"><b>${db.materials.length}</b><span class="muted">Materials saved</span></div>
+    <div class="stat"><b>${overdue.length}</b><span class="muted">Overdue</span></div>
+    <div class="stat"><b>${overall === null ? '–' : overall.toFixed(1) + '%'}</b><span class="muted">Weighted average</span></div>
+    <div class="stat"><b>${reviews}</b><span class="muted">Records due for review</span></div>
+  </div>
+  <h2>Overdue</h2>
+  <div class="panel">${overdue.length ? overdue.map(a => assessRow(a)).join('') : '<p class="empty">Nothing overdue.</p>'}</div>
+  <h2>Next up</h2>
+  <div class="panel">${upcoming.length ? upcoming.map(a => assessRow(a)).join('') : '<p class="empty">No open CATs or assignments. Add one under CATs &amp; Assignments.</p>'}</div>
+  <h2>Course averages</h2>
+  <div class="panel">${db.courses.length ? db.courses.map(c => {
+      const avg = courseAverage(c.id);
+      return `<div class="row"><div class="grow"><b>${esc(c.code)}</b> <span class="muted">${esc(c.title)}</span></div><div>${avg === null ? '<span class="muted">No scores yet</span>' : avg.toFixed(1) + '%'}</div></div>`;
+    }).join('') : '<p class="empty">No courses yet.</p>'}</div>`;
+}
+
+function assessRow(a) {
+  const late = !a.done && a.due && a.due < today();
+  return `<div class="row">
+    <div class="grow">
+      <div class="${a.done ? 'done' : ''}"><b>${esc(a.title)}</b> <span class="tag">${esc(a.kind)}</span><span class="tag">${esc(courseLabel(a.course))}</span></div>
+      <div class="muted">${a.due ? 'Due ' + esc(a.due) : 'No due date'}${a.weight ? ' · ' + a.weight + '% of course' : ''}${a.score !== null ? ' · Score ' + a.score + '%' : ''}${late ? ' · <span class="late">Late</span>' : ''}</div>
+    </div>
+    <div class="row" style="border:0;padding:0">
+      <button class="btn ghost" onclick="toggleDone('${a.id}')">${a.done ? 'Reopen' : 'Done'}</button>
+      <button class="del" title="Delete" onclick="removeItem('assessments','${a.id}')">×</button>
+    </div>
+  </div>`;
+}
+
+function viewCourses() {
+  const q = search.toLowerCase();
+  const searchHits = q ? db.materials.filter(m => matches(m.title + ' ' + m.tags.join(' ') + ' ' + m.type, q)) : [];
+
+  return `
+  <div class="panel">
+    <form onsubmit="addCourse(event)">
+      <input name="code" placeholder="Course code, e.g. SMA 104" required>
+      <input name="ctitle" placeholder="Course title">
+      <input name="lecturer" placeholder="Lecturer">
+      <input name="sem" placeholder="Semester, e.g. Sem 1 2026/27">
+      <button class="btn" type="submit">Add course</button>
+    </form>
+  </div>
+  <input type="search" placeholder="Search all materials by title, type or tag" value="${esc(search)}" oninput="search=this.value;render()" style="margin-bottom:12px">
+  ${q ? `<div class="panel">${searchHits.length ? searchHits.map(m => materialRow(m)).join('') : '<p class="empty">No materials match.</p>'}</div>` : ''}
+  ${db.courses.length ? db.courses.map(c => {
+      const mats = db.materials.filter(m => m.course === c.id);
+      return `<div class="panel course">
+        <h3>${esc(c.code)} <span class="muted" style="font:inherit">${esc(c.title)}</span></h3>
+        <div class="muted">${esc(c.lecturer)}${c.lecturer && c.sem ? ' · ' : ''}${esc(c.sem)}</div>
+        <div style="margin-top:8px">${mats.length ? mats.map(m => materialRow(m)).join('') : '<p class="empty">No materials yet.</p>'}</div>
+        <details><summary>Add material</summary>
+          <form onsubmit="addMaterial(event,'${c.id}')" style="margin-top:8px">
+            <input name="mtitle" placeholder="Title, e.g. Week 4 lecture notes" required>
+            <select name="mtype"><option>Lecture notes</option><option>Slides</option><option>Textbook chapter</option><option>Past paper</option><option>Reading</option><option>Other</option></select>
+            <input name="where" placeholder="Link or location (e.g. shelf, folder)">
+            <input name="mtags" placeholder="Tags, comma separated">
+            <button class="btn" type="submit">Save material</button>
+          </form>
+        </details>
+      </div>`;
+    }).join('') : '<p class="empty">Add your first course to start filing materials.</p>'}`;
+}
+
+function materialRow(m) {
+  return `<div class="row">
+    <div class="grow"><b>${esc(m.title)}</b> <span class="tag">${esc(m.type)}</span>${db.courses.length && !search ? '' : `<span class="tag">${esc(courseLabel(m.course))}</span>`}
+      ${m.where ? `<div class="muted">${/^https?:\/\//.test(m.where) ? `<a href="${esc(m.where)}" target="_blank" rel="noopener" style="color:var(--accent)">Open link</a>` : esc(m.where)}</div>` : ''}
+      ${m.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}
+    </div>
+    <button class="del" title="Delete" onclick="removeItem('materials','${m.id}')">×</button>
+  </div>`;
+}
+
+function viewAssess() {
+  const sorted = [...db.assessments].sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999'));
+  const opts = db.courses.map(c => `<option value="${c.id}">${esc(c.code)}</option>`).join('');
+  return `
+  <div class="panel">
+    ${db.courses.length ? `
+    <form onsubmit="addAssessment(event)">
+      <select name="acourse" required><option value="">Course</option>${opts}</select>
+      <select name="kind"><option>CAT</option><option>Assignment</option><option>Quiz</option><option>Lab</option><option>Project</option><option>Exam</option></select>
+      <input name="atitle" placeholder="Title, e.g. CAT 1" required>
+      <input name="due" type="date">
+      <input name="weight" type="number" min="0" max="100" step="0.5" placeholder="Weight %">
+      <input name="score" type="number" min="0" max="100" step="0.1" placeholder="Score % (optional)">
+      <button class="btn" type="submit">Add</button>
+    </form>` : '<p class="empty">Add a course first, then track its CATs and assignments here.</p>'}
+  </div>
+  <div class="panel">${sorted.length ? sorted.map(a => assessRow(a)).join('') : '<p class="empty">Nothing tracked yet.</p>'}</div>`;
+}
+
+function viewRecords() {
+  const q = search.toLowerCase();
+  const list = db.records.filter(r => matches(r.title + ' ' + r.ref + ' ' + r.cat + ' ' + r.tags.join(' '), q));
+  return `
+  <div class="panel">
+    <form onsubmit="addRecord(event)">
+      <input name="rtitle" placeholder="Record, e.g. KCSE certificate" required>
+      <select name="rcat"><option>Admission</option><option>Transcript</option><option>Fee</option><option>Certificate</option><option>Correspondence</option><option>Other</option></select>
+      <input name="ref" placeholder="Reference number">
+      <input name="rdate" type="date" title="Date of record">
+      <input name="rwhere" placeholder="Where it is kept">
+      <input name="keep" type="number" min="0" placeholder="Keep for (years)">
+      <input name="rtags" class="wide" placeholder="Tags, comma separated">
+      <button class="btn" type="submit">Save record</button>
+    </form>
+  </div>
+  <input type="search" placeholder="Find a record by title, reference or tag" value="${esc(search)}" oninput="search=this.value;render()" style="margin-bottom:12px">
+  <div class="panel">${list.length ? list.map(r => `
+    <div class="row">
+      <div class="grow">
+        <b>${esc(r.title)}</b> <span class="tag">${esc(r.cat)}</span>
+        <div class="muted">${r.ref ? 'Ref ' + esc(r.ref) : 'No reference'}${r.date ? ' · ' + esc(r.date) : ''}${r.where ? ' · ' + esc(r.where) : ''}${r.keep ? ' · Keep ' + r.keep + ' yrs' : ''}</div>
+        ${reviewDue(r) ? '<div class="late">Past retention period, review or dispose</div>' : ''}
+        ${r.tags.map(t => `<span class="tag">#${esc(t)}</span>`).join('')}
+      </div>
+      <button class="del" title="Delete" onclick="removeItem('records','${r.id}')">×</button>
+    </div>`).join('') : '<p class="empty">No records match. Save one above to start your archive.</p>'}</div>`;
+}
+
+/* ---------- render ---------- */
+function render() {
+  document.getElementById('nav').innerHTML = Object.entries(TABS).map(([k, v]) =>
+    `<button class="${k === tab ? 'on' : ''}" onclick="go('${k}')">${v}</button>`).join('');
+  const views = { dash: viewDash, courses: viewCourses, assess: viewAssess, records: viewRecords };
+  const active = document.activeElement;
+  const wasSearch = active && active.type === 'search';
+  const pos = wasSearch ? active.selectionStart : 0;
+  document.getElementById('view').innerHTML = views[tab]();
+  if (wasSearch) {
+    const box = document.querySelector('input[type=search]');
+    if (box) { box.focus(); box.setSelectionRange(pos, pos); }
+  }
+}
+render();
+</script>
+</body>
+  </html>
